@@ -11,32 +11,30 @@ import {TypeForUndefined} from '../model/undefined';
     styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-    beginnerCourses: Course[] | TypeForUndefined;
-    advancedCourses: Course[] | TypeForUndefined;
+    beginnerCourses$: Observable<Course[]>;
+    advancedCourses$: Observable<Course[]>;
 
     constructor() {}
 
     ngOnInit() {
         const http$ = createHttpObservable('/api/courses');
 
-        const courses$ = http$
+        const courses$: Observable<Course[]> = http$
         .pipe(
             map(result => Object.values(result["payload"]))
         );
 
-    courses$.subscribe(
-        courses => {             
-            this.beginnerCourses = courses
-                .filter(course => course['category'] == 'BEGINNER');
-            this.advancedCourses = courses
-                .filter(course => course['category'] == 'ADVANCED');           
-        },
-        noop, //noop = no operation
-        () => console.log("Completed!")
-    )
-      
-    
+        this.beginnerCourses$ = courses$
+            .pipe(
+                map(courses => courses
+                    .filter(course => course.category == 'BEGINNER'))
+            ) 
 
+        this.advancedCourses$ = courses$
+            .pipe(
+                map(courses => courses
+                    .filter(course => course.category == 'ADVANCED'))
+            )         
     }
 
 }
