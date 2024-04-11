@@ -20,9 +20,13 @@ export class HomeComponent implements OnInit {
         const http$ = createHttpObservable('/api/courses');
 
         const courses$: Observable<Course[]> = http$
-        .pipe(
-            map(result => Object.values(result["payload"]))
+        .pipe(            
+            tap(() => console.log('Http request executed.')),
+            map(result => Object.values(result["payload"])),
+            shareReplay <Course[]>() //<Course[]> for ts linter 
         );
+
+        courses$.subscribe(); //for check how works shareReplay <Course[]>() in Network
 
         this.beginnerCourses$ = courses$
             .pipe(
@@ -38,3 +42,7 @@ export class HomeComponent implements OnInit {
     }
 
 }
+function ofType(): import("rxjs").OperatorFunction<void, unknown> {
+    throw new Error('Function not implemented.');
+}
+
