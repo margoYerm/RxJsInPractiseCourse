@@ -12,7 +12,7 @@ import {fromPromise} from 'rxjs/internal-compatibility';
     templateUrl: './course-dialog.component.html',
     styleUrls: ['./course-dialog.component.css']
 })
-export class CourseDialogComponent implements OnInit, AfterViewInit {
+export class CourseDialogComponent implements OnInit {
 
     form: FormGroup;
     course:Course;
@@ -39,37 +39,21 @@ export class CourseDialogComponent implements OnInit, AfterViewInit {
     ngOnInit() {
         this.form.valueChanges
         .pipe(
-            filter(() => this.form.valid)
-        )
-        //.subscribe(console.log);
-        //putting this changes to the server without Observables
-        /*.subscribe( changes => {
-            console.log(changes),            
-            fetch(`api/courses/${this.course.id}`, {
-                method: 'PUT',
-                body: JSON.stringify(changes),
-                headers: {
-                    'content-type': 'application/json'
-                }                
-            }).then()//here will be result of evaluating this(fetch) promise (catch, error hangling)
-        })*/
-
-        //To convert this Promise into an observable
-
-        .subscribe( changes => {                       
-            const saveCourse$ = fromPromise (fetch(`api/courses/${this.course.id}`, {
-                method: 'PUT',
-                body: JSON.stringify(changes),
-                headers: {
-                    'content-type': 'application/json'
-                }                
-            }));
-            saveCourse$.subscribe();
-        })
+            filter(() => this.form.valid),
+            concatMap(changes => this.saveCourse(changes))
+        )         
+        .subscribe()
     }
 
-
-    ngAfterViewInit() {}
+    saveCourse(changes) {
+        return  fromPromise (fetch(`api/courses/${this.course.id}`, {
+            method: 'PUT',
+            body: JSON.stringify(changes),
+            headers: {
+                'content-type': 'application/json'
+            }                
+        }));
+    }
 
 
     close() {
