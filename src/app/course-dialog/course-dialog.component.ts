@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import {Course} from "../model/course";
 import {FormBuilder, Validators, FormGroup} from "@angular/forms";
 import * as moment from 'moment';
-import {fromEvent} from 'rxjs';
+import {Observable, fromEvent} from 'rxjs';
 import {concatMap, distinctUntilChanged, exhaustMap, filter, mergeMap, tap} from 'rxjs/operators';
 import {fromPromise} from 'rxjs/internal-compatibility';
 
@@ -12,14 +12,14 @@ import {fromPromise} from 'rxjs/internal-compatibility';
     templateUrl: './course-dialog.component.html',
     styleUrls: ['./course-dialog.component.css']
 })
-export class CourseDialogComponent implements OnInit {
+export class CourseDialogComponent implements OnInit, AfterViewInit {
 
     form: FormGroup;
     course:Course;
 
-    @ViewChild('saveButton', { static: true }) saveButton: ElementRef;
+    @ViewChild('saveButton', { static: true, read: ElementRef }) saveButton: ElementRef;
 
-    @ViewChild('searchInput', { static: true }) searchInput : ElementRef;
+    @ViewChild('searchInput', { static: true, read: ElementRef }) searchInput : ElementRef;
 
     constructor(
         private fb: FormBuilder,
@@ -34,7 +34,7 @@ export class CourseDialogComponent implements OnInit {
             longDescription: [course.longDescription,Validators.required]
         });
 
-    }
+    }    
 
     ngOnInit() {
         this.form.valueChanges
@@ -44,6 +44,14 @@ export class CourseDialogComponent implements OnInit {
             //mergeMap(changes => this.saveCourse(changes))
         )         
         .subscribe()
+    }
+
+    ngAfterViewInit() {
+        fromEvent(this.saveButton.nativeElement, 'click')
+            .pipe(
+                exhaustMap(() => this.saveCourse(this.form.value))
+            )
+            .subscribe(res => console.log(res));
     }
 
     saveCourse(changes) {
