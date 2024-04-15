@@ -33,7 +33,19 @@ export class AboutComponent implements OnInit {
     );
     const resultInterval$ = merge(interval1$, interval2$);
     //resultInterval$.subscribe(console.log); //0 0 1 10 2 20....
+
+    //unsubscription from observable 
+    const intervalUns$ = interval(1000);
+    //const sub = intervalUns$.subscribe(console.log);
+    //setTimeout(() => {sub.unsubscribe()}, 5000);
+
+    //unsubscription from HTTP request 
+    const httpReq$ = createHttpObservable('/api/courses');
+    const unsubHttpReg = httpReq$.subscribe(console.log);
+    setTimeout(() => {unsubHttpReg.unsubscribe()}, 0)
   }
+
+  
 
   
 }
