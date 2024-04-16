@@ -23,7 +23,7 @@ import { createHttpObservable } from '../common/util';
     templateUrl: './course.component.html',
     styleUrls: ['./course.component.css']
 })
-export class CourseComponent implements OnInit {
+export class CourseComponent implements OnInit, AfterViewInit{
 
     course$: Observable<Course>;
     lessons$: Observable<Lesson[]>;
@@ -44,5 +44,19 @@ export class CourseComponent implements OnInit {
                     map(res => res["payload"])
                 )
 
+    }
+
+    ngAfterViewInit() {
+        fromEvent(this.input.nativeElement as HTMLInputElement, 'keyup')
+            .pipe(                
+                map(event => (event.target as HTMLInputElement).value),
+                debounceTime(1000),
+                distinctUntilChanged()
+            )
+        /*fromEvent<any>(this.input.nativeElement, 'keyup')
+            .pipe(
+                map(event => event.target.value)
+            )*/
+            .subscribe(console.log)
     }
 }
