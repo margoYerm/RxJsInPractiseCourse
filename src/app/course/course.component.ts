@@ -16,6 +16,7 @@ import {
 import {merge, fromEvent, Observable, concat, interval} from 'rxjs';
 import {Lesson} from '../model/lesson';
 import { createHttpObservable } from '../common/util';
+import { RxJsLoggingLevel, debug, setRxJsLoggingLevel } from '../common/debug';
 
 
 @Component({
@@ -34,24 +35,29 @@ export class CourseComponent implements OnInit, AfterViewInit{
 
     ngOnInit() {
         this.courseId = this.route.snapshot.params['id'];
-        this.course$ = createHttpObservable(`/api/courses/${this.courseId}`) as 
-            Observable<unknown> as Observable<Course>
-        
+        this.course$ = (createHttpObservable(`/api/courses/${this.courseId}`) as 
+            Observable<unknown> as Observable<Course>)
+            .pipe(
+                //tap(course => console.log('Course', course)),
+                debug(RxJsLoggingLevel.INFO, "course value"), 
+            )
+        setRxJsLoggingLevel(RxJsLoggingLevel.DEBUG);
     }
 
-    ngAfterViewInit() {       
-        //this.lessons$ = fromEvent(this.input.nativeElement as HTMLInputElement, 'keyup')
-        fromEvent(this.input.nativeElement as HTMLInputElement, 'keyup')
+    ngAfterViewInit() {   
+        //fromEvent(this.input.nativeElement as HTMLInputElement, 'keyup')    
+        this.lessons$ = fromEvent(this.input.nativeElement as HTMLInputElement, 'keyup')        
         .pipe(                
             map(event => (event.target as HTMLInputElement).value),
-            startWith(''),
-            //throttle(() => interval(500)),
-            throttleTime(500),
-            //debounceTime(500),
-            //distinctUntilChanged(),
-            //switchMap(search => this.loadLessons(search))
+            startWith(''),  
+            //tap(search => console.log("search", search)),  
+            debug(RxJsLoggingLevel.TRACE, "search"),                 
+            debounceTime(500),
+            distinctUntilChanged(),
+            switchMap(search => this.loadLessons(search)),
+            debug(RxJsLoggingLevel.DEBUG, "lessons value"), 
         )
-        .subscribe(console.log)
+        //.subscribe(console.log)
     }
 
     loadLessons(search = ''): Observable<Lesson[]> {
