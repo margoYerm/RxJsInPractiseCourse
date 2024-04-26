@@ -41,8 +41,8 @@ export class AboutComponent implements OnInit {
 
     //unsubscription from HTTP request 
     const httpReq$ = createHttpObservable('/api/courses');
-    const unsubHttpReg = httpReq$.subscribe(console.log);
-    setTimeout(() => {unsubHttpReg.unsubscribe()}, 0)
+    //const unsubHttpReg = httpReq$.subscribe(console.log);
+    //setTimeout(() => {unsubHttpReg.unsubscribe()}, 0)
   }
 
   

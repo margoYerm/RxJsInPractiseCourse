@@ -13,12 +13,9 @@ export class CoursesCardListComponent implements OnInit {
     @Input()
     courses: Course[];
 
-    constructor(private dialog: MatDialog) {
-    }
+    constructor(private dialog: MatDialog) {}
 
-    ngOnInit() {
-
-    }
+    ngOnInit() {}
 
     editCourse(course:Course) {
 
@@ -30,8 +27,6 @@ export class CoursesCardListComponent implements OnInit {
         dialogConfig.data = course;
 
         const dialogRef = this.dialog.open(CourseDialogComponent, dialogConfig);
-
-
     }
 
 }

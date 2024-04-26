@@ -26,18 +26,14 @@
     font-size: 20px;
 }
 
-
 .lessons-table {
     min-height: 360px;
     margin-top: 10px;
 }
 
-
-
 .search-bar {
     margin-top: 20px;
 }
-
 
 .lessons-table tr {
     height: 60px;
@@ -45,6 +41,7 @@
 
 .lessons-table td {
     border-top: 1px solid  rgba(0,0,0,.12);
+    padding: 10px;
 }
 
 .lessons-table th {
@@ -52,6 +49,3 @@
     color: rgba(0,0,0,.54);
 }
 
-.lessons-table td {
-    padding: 10px;
-}

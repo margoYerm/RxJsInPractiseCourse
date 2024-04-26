@@ -27,41 +27,30 @@ import { RxJsLoggingLevel, debug, setRxJsLoggingLevel } from '../common/debug';
 export class CourseComponent implements OnInit, AfterViewInit{
     courseId: string;
     course$: Observable<Course>;
-    lessons$: Observable<Lesson[]>;
-
+    lessons$: Observable<Lesson []>
+   
     @ViewChild('searchInput', { static: true }) input: ElementRef;
 
     constructor(private route: ActivatedRoute) {}
 
     ngOnInit() {
         this.courseId = this.route.snapshot.params['id'];
-        const course$ = (createHttpObservable(`/api/courses/${this.courseId}`) as 
-            Observable<unknown> as Observable<Course>)
-        const lessons$ = this.loadLessons();
-        forkJoin(course$, lessons$)
-        .pipe(
-            tap(([course, lessons]) => {
-                console.log('Course', course); //object with current course
-                console.log('Lessons', lessons); //array with objects for each lesson
-            })
-        )
-            .subscribe()    
+        this.course$ = (createHttpObservable(`/api/courses/${this.courseId}`) as 
+            Observable<unknown> as Observable<Course>)               
     }
 
-    ngAfterViewInit() {   
-        //fromEvent(this.input.nativeElement as HTMLInputElement, 'keyup')    
-        this.lessons$ = fromEvent(this.input.nativeElement as HTMLInputElement, 'keyup')        
+    ngAfterViewInit() {            
+        const searchLessons$ = fromEvent(this.input.nativeElement as HTMLInputElement, 'keyup')        
         .pipe(                
-            map(event => (event.target as HTMLInputElement).value),
-            startWith(''),  
-            //tap(search => console.log("search", search)),  
-            debug(RxJsLoggingLevel.TRACE, "search"),                 
+            map(event => (event.target as HTMLInputElement).value),                        
             debounceTime(500),
             distinctUntilChanged(),
-            switchMap(search => this.loadLessons(search)),
-            debug(RxJsLoggingLevel.DEBUG, "lessons value"), 
+            switchMap(search => this.loadLessons(search)),            
         )
-        //.subscribe(console.log)
+        
+        const initialLessons$ = this.loadLessons();
+
+        this.lessons$ = concat(initialLessons$, searchLessons$)
     }
 
     loadLessons(search = ''): Observable<Lesson[]> {

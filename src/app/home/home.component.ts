@@ -45,7 +45,4 @@ export class HomeComponent implements OnInit {
     }
 
 }
-function ofType(): import("rxjs").OperatorFunction<void, unknown> {
-    throw new Error('Function not implemented.');
-}
 
