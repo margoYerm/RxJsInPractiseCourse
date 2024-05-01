@@ -6,6 +6,7 @@ import * as moment from 'moment';
 import {Observable, fromEvent} from 'rxjs';
 import {concatMap, distinctUntilChanged, exhaustMap, filter, mergeMap, tap} from 'rxjs/operators';
 import {fromPromise} from 'rxjs/internal-compatibility';
+import { Store } from '../common/store.service';
 
 @Component({
     selector: 'course-dialog',
@@ -24,35 +25,21 @@ export class CourseDialogComponent implements OnInit, AfterViewInit {
     constructor(
         private fb: FormBuilder,
         private dialogRef: MatDialogRef<CourseDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) course:Course ) {
+        @Inject(MAT_DIALOG_DATA) course:Course,
+        private store: Store,
+    ) {   
         this.course = course;
-
         this.form = fb.group({
             description: [course.description, Validators.required],
             category: [course.category, Validators.required],
             releasedAt: [moment(), Validators.required],
             longDescription: [course.longDescription,Validators.required]
         });
-
     }    
 
-   ngOnInit() {
-        /* this.form.valueChanges
-        .pipe(
-            filter(() => this.form.valid),
-            concatMap(changes => this.saveCourse(changes))
-            //mergeMap(changes => this.saveCourse(changes))
-        )         
-        .subscribe()*/
-    }
+    ngOnInit() {}
 
-    ngAfterViewInit() {
-        /*fromEvent(this.saveButton.nativeElement, 'click')
-            .pipe(
-                exhaustMap(() => this.saveCourse(this.form.value))
-            )
-            .subscribe(res => console.log(res));*/
-    }
+    ngAfterViewInit() {}
 
     saveCourse(changes) {
         return  fromPromise (fetch(`api/courses/${this.course.id}`, {
@@ -64,10 +51,15 @@ export class CourseDialogComponent implements OnInit, AfterViewInit {
         }));
     }
 
-
     close() {
         this.dialogRef.close();
     }
 
-    save() {}
+    save() {
+        this.store.saveCourse(this.course.id, this.form.value)
+            .subscribe(
+                () => this.close(),
+                err => console.log('Error saving course', err)
+            );
+    }
 }
