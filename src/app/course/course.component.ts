@@ -11,7 +11,7 @@ import {
     concatMap,
     switchMap,
     withLatestFrom,
-    concatAll, shareReplay, throttle, throttleTime
+    concatAll, shareReplay, throttle, throttleTime, first, take
 } from 'rxjs/operators';
 import {merge, fromEvent, Observable, concat, interval, forkJoin} from 'rxjs';
 import {Lesson} from '../model/lesson';
@@ -41,7 +41,13 @@ export class CourseComponent implements OnInit, AfterViewInit{
         this.courseId = this.route.snapshot.params['id'];
         /*this.course$ = (createHttpObservable(`/api/courses/${this.courseId}`) as 
             Observable<unknown> as Observable<Course>)  */
-        this.course$ = this.store.selectCourseById(this.courseId)             
+        this.course$ = this.store.selectCourseById(this.courseId)
+            .pipe(
+                //first() //sub from forkJoin, in console array from 2 el (course, lessons)
+                take(1)
+            );
+        forkJoin(this.course$, this.loadLessons())
+        .subscribe(console.log); 
     }
 
     ngAfterViewInit() {            
