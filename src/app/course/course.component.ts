@@ -38,16 +38,20 @@ export class CourseComponent implements OnInit, AfterViewInit{
         ) {}
 
     ngOnInit() {
-        this.courseId = this.route.snapshot.params['id'];
-        /*this.course$ = (createHttpObservable(`/api/courses/${this.courseId}`) as 
-            Observable<unknown> as Observable<Course>)  */
-        this.course$ = this.store.selectCourseById(this.courseId)
+        this.courseId = this.route.snapshot.params['id'];      
+        this.course$ = this.store.selectCourseById(this.courseId); 
+        
+        this.loadLessons()
             .pipe(
-                //first() //sub from forkJoin, in console array from 2 el (course, lessons)
-                take(1)
-            );
-        forkJoin(this.course$, this.loadLessons())
-        .subscribe(console.log); 
+                withLatestFrom(this.course$)
+            )
+            .subscribe(
+                ([lessons, course]) => {
+                    console.log('Lessons: ', lessons); //lessons array
+                    console.log('Course: ', course); // course object
+                }
+            )
+        
     }
 
     ngAfterViewInit() {            
